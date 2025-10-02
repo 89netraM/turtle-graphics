@@ -12,10 +12,10 @@ export function render(
   ctx.reset();
 
   const turtle = new Turtle(new Vector(config.width / 2, 0), new Vector(config.width, config.height));
-  const traveledDistance = renderPath(config.height, scale, ctx, turtle, actions, distance);
+  const { traveledDistance, color } = renderPath(config.height, scale, ctx, turtle, actions, distance);
   ctx.stroke();
   if (config.drawTurtle === true) {
-    renderTurtle(config.height, scale, ctx, turtle, traveledDistance);
+    renderTurtle(config.height, scale, ctx, turtle, traveledDistance, color);
   }
 }
 
@@ -26,19 +26,21 @@ function renderPath(
   turtle: Turtle,
   actions: ReadonlyArray<TurtleAction>,
   distance: number,
-): number {
+): { traveledDistance: number; color: string } {
   const startingDistance = distance;
+  let color = "#00000000";
+  ctx.strokeStyle = color;
   ctx.lineWidth = 10 * scale;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.moveTo(turtle.position.x * scale, height * scale - turtle.position.y * scale);
   for (const action of actions) {
     if (action.action === "pen-down") {
-      ctx.strokeStyle = action.color;
+      ctx.strokeStyle = color = action.color;
       ctx.beginPath();
     } else if (action.action === "pen-up") {
       ctx.stroke();
-      ctx.strokeStyle = "#00000000";
+      ctx.strokeStyle = color = "#00000000";
     } else if (action.action === "forward") {
       const [{ position: start }, ...rest] = [...turtle.move(Math.min(action.distance, distance))];
       ctx.moveTo(start.x * scale, height * scale - start.y * scale);
@@ -47,23 +49,44 @@ function renderPath(
         distance -= traveledDistance;
       }
       if (distance <= 0) {
-        return startingDistance;
+        return { traveledDistance: startingDistance, color };
       }
     } else if (action.action === "rotate") {
       turtle.rotate(action.angle);
     }
   }
-  return startingDistance - distance;
+  return { traveledDistance: startingDistance - distance, color };
 }
 
-function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext2D, turtle: Turtle, distance: number) {
-  // Draw turtle body (ellipse)
+function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext2D, turtle: Turtle, distance: number, color: string) {
   ctx.save();
   ctx.translate(turtle.position.x * scale, height * scale - turtle.position.y * scale);
   ctx.rotate(turtle.angle());
   ctx.lineWidth = 4 * scale;
   ctx.strokeStyle = "#388e3c";
   ctx.fillStyle = "#bada55";
+
+  // --- Begin: Inverted hexagon clip ---
+  ctx.save();
+  // Draw a huge rectangle
+  ctx.beginPath();
+  ctx.rect(-10000 * scale, -10000 * scale, 20000 * scale, 20000 * scale);
+
+  // Draw the hexagon "hole"
+  ctx.moveTo(
+    Math.cos(-Math.PI / 6) * 8 * scale,
+    Math.sin(-Math.PI / 6) * 8 * scale + 2 * scale
+  );
+  for (let i = 1; i < 6; i++) {
+    const angle = Math.PI / 3 * i - Math.PI / 6;
+    const x = Math.cos(angle) * 8 * scale;
+    const y = Math.sin(angle) * 8 * scale + 2 * scale;
+    ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  // Use "evenodd" to invert the clip
+  ctx.clip("evenodd");
+  // --- End: Inverted hexagon clip ---
 
   // Wiggle amount based on distance (creates a periodic wiggle)
   const wiggleL = Math.sin(distance / 10) * 8;
@@ -107,10 +130,32 @@ function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext
 
   // Eyes
   ctx.beginPath();
-  ctx.fillStyle = "#222";
+  ctx.fillStyle = "#222222";
   ctx.arc(-3 * scale, -26 * scale, 1.5 * scale, 0, Math.PI * 2);
   ctx.arc(3 * scale, -26 * scale, 1.5 * scale, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.restore(); // Remove the inverted hexagon clip
+
+  // Now fill the hexagon with the color
+  ctx.save();
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 3 * i - Math.PI / 6;
+    const x = Math.cos(angle) * 8 * scale;
+    const y = Math.sin(angle) * 8 * scale + 2 * scale;
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.lineWidth = 2 * scale;
+  ctx.stroke();
+  ctx.restore();
 
   ctx.restore();
 }

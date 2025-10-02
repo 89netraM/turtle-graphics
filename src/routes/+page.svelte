@@ -37,7 +37,7 @@
     { action: "forward", distance: 25 },
     { action: "pen-up" },
     { action: "forward", distance: 25 },
-    { action: "pen-down", color: "#bada55" },
+    { action: "pen-down", color: "#09cdda" },
     { action: "forward", distance: 25 },
     { action: "rotate", angle: Math.PI / 2 },
     { action: "forward", distance: 600 },
@@ -48,4 +48,5 @@
   width={640}
   height={360}
   {distance}
+  drawTurtle={true}
 />
