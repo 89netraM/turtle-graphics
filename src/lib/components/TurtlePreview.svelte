@@ -2,7 +2,12 @@
   import { render as turtleRender, type TurtleAction } from "$lib/turtle-graphics";
   import { onDestroy, onMount } from "svelte";
 
-  let { actions, width, height }: { actions: ReadonlyArray<TurtleAction>; width: number; height: number } = $props();
+  let {
+    actions,
+    width,
+    height,
+    distance = Number.POSITIVE_INFINITY,
+  }: { actions: ReadonlyArray<TurtleAction>; width: number; height: number; distance?: number } = $props();
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
@@ -10,16 +15,25 @@
 
   onMount(() => {
     ctx = canvas.getContext("2d")!;
-    resizeObserver = new ResizeObserver(() => render());
+    resizeObserver = new ResizeObserver(() => render(distance));
     resizeObserver.observe(canvas);
-    render();
+    render(distance);
   });
 
-  function render() {
+  $effect(() => {
+    render(distance);
+  });
+
+  function render(distance: number) {
     const canvasRect = canvas.getBoundingClientRect();
     canvas.width = canvasRect.width;
     canvas.height = canvasRect.height;
-    turtleRender({ width, height, scale: canvasRect.width / width }, ctx, actions);
+    turtleRender(
+      { width, height, scale: canvasRect.width / width, drawTurtle: Number.isFinite(distance) },
+      ctx,
+      actions,
+      distance,
+    );
   }
 
   onDestroy(() => {

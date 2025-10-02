@@ -1,16 +1,37 @@
 import type { TurtleAction } from "./TurtleAction";
 import type { TurtleConfig } from "./TurtleConfig";
 
-export function render(config: TurtleConfig, ctx: CanvasRenderingContext2D, actions: ReadonlyArray<TurtleAction>) {
+export function render(
+  config: TurtleConfig,
+  ctx: CanvasRenderingContext2D,
+  actions: ReadonlyArray<TurtleAction>,
+  distance: number,
+) {
   const scale = config.scale ?? 1;
 
-  ctx.clearRect(0, 0, config.width * scale, config.height * scale);
+  ctx.reset();
+
+  const turtle = new Turtle(new Vector(config.width / 2, 0), new Vector(config.width, config.height));
+  const traveledDistance = renderPath(config.height, scale, ctx, turtle, actions, distance);
+  ctx.stroke();
+  if (config.drawTurtle === true) {
+    renderTurtle(config.height, scale, ctx, turtle, traveledDistance);
+  }
+}
+
+function renderPath(
+  height: number,
+  scale: number,
+  ctx: CanvasRenderingContext2D,
+  turtle: Turtle,
+  actions: ReadonlyArray<TurtleAction>,
+  distance: number,
+): number {
+  const startingDistance = distance;
   ctx.lineWidth = 10 * scale;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-
-  const turtle = new Turtle(new Vector(config.width / 2, 0), new Vector(config.width, config.height));
-  ctx.moveTo(turtle.position.x * scale, config.height * scale - turtle.position.y * scale);
+  ctx.moveTo(turtle.position.x * scale, height * scale - turtle.position.y * scale);
   for (const action of actions) {
     if (action.action === "pen-down") {
       ctx.strokeStyle = action.color;
@@ -19,16 +40,79 @@ export function render(config: TurtleConfig, ctx: CanvasRenderingContext2D, acti
       ctx.stroke();
       ctx.strokeStyle = "#00000000";
     } else if (action.action === "forward") {
-      const [start, ...rest] = [...turtle.move(action.distance)];
-      ctx.moveTo(start.x * scale, config.height * scale - start.y * scale);
-      for (const position of rest) {
-        ctx.lineTo(position.x * scale, config.height * scale - position.y * scale);
+      const [{ position: start }, ...rest] = [...turtle.move(Math.min(action.distance, distance))];
+      ctx.moveTo(start.x * scale, height * scale - start.y * scale);
+      for (const { distance: traveledDistance, position } of rest) {
+        ctx.lineTo(position.x * scale, height * scale - position.y * scale);
+        distance -= traveledDistance;
+      }
+      if (distance <= 0) {
+        return startingDistance;
       }
     } else if (action.action === "rotate") {
       turtle.rotate(action.angle);
     }
   }
+  return startingDistance - distance;
+}
+
+function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext2D, turtle: Turtle, distance: number) {
+  // Draw turtle body (ellipse)
+  ctx.save();
+  ctx.translate(turtle.position.x * scale, height * scale - turtle.position.y * scale);
+  ctx.rotate(turtle.angle());
+  ctx.lineWidth = 4 * scale;
+  ctx.strokeStyle = "#388e3c";
+  ctx.fillStyle = "#bada55";
+
+  // Wiggle amount based on distance (creates a periodic wiggle)
+  const wiggleL = Math.sin(distance / 10) * 8;
+  const wiggleR = Math.cos(distance / 10) * 8;
+
+  // Left front leg
+  ctx.beginPath();
+  ctx.ellipse(-11 * scale, -11 * scale, 4 * scale, 8 * scale, Math.PI * 0.1 + wiggleL * 0.05, 0, Math.PI * 2);
+  ctx.fill();
   ctx.stroke();
+
+  // Right front leg
+  ctx.beginPath();
+  ctx.ellipse(11 * scale, -11 * scale, 4 * scale, 8 * scale, -Math.PI * 0.1 - wiggleR * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Left back leg
+  ctx.beginPath();
+  ctx.ellipse(-11 * scale, 13 * scale, 4 * scale, 8 * scale, -Math.PI * 0.1 - wiggleL * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Right back leg
+  ctx.beginPath();
+  ctx.ellipse(11 * scale, 13 * scale, 4 * scale, 8 * scale, Math.PI * 0.1 + wiggleR * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Body
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 14 * scale, 20 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Head
+  ctx.beginPath();
+  ctx.ellipse(0, -22 * scale, 8 * scale, 10 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Eyes
+  ctx.beginPath();
+  ctx.fillStyle = "#222";
+  ctx.arc(-3 * scale, -26 * scale, 1.5 * scale, 0, Math.PI * 2);
+  ctx.arc(3 * scale, -26 * scale, 1.5 * scale, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
 }
 
 class Turtle {
@@ -53,23 +137,27 @@ class Turtle {
     this.#heading = this.#heading.rotate(angle);
   }
 
-  public *move(distance: number): IterableIterator<Vector> {
-    yield this.#position;
+  public *move(distance: number): IterableIterator<{ distance: number; position: Vector }> {
+    yield { distance: 0, position: this.#position };
     const intersection = boundsIntersection(this.boundingSize, this.#position, this.#heading);
     if (intersection == null || intersection.d > distance) {
       this.#position = this.#position.add(this.#heading.scale(distance));
-      yield this.#position;
+      yield { distance, position: this.#position };
       return;
     }
 
     if (intersection.d > 0) {
       this.#position = intersection.p;
-      yield this.#position;
+      yield { distance: intersection.d, position: this.#position };
       distance -= intersection.d;
     }
 
     this.#position = this.#position.add(this.#heading.scale(distance)).clamp(this.boundingSize);
-    yield this.#position;
+    yield { distance, position: this.#position };
+  }
+
+  public angle(): number {
+    return Math.atan2(this.#heading.x, this.#heading.y);
   }
 }
 
@@ -90,12 +178,24 @@ class Vector {
     return new Vector(this.x + other.x, this.y + other.y);
   }
 
+  public sub(other: Vector): Vector {
+    return new Vector(this.x - other.x, this.y - other.y);
+  }
+
   public scale(s: number): Vector {
     return new Vector(this.x * s, this.y * s);
   }
 
   public clamp(bounds: Vector): Vector {
     return new Vector(Math.max(0, Math.min(this.x, bounds.x)), Math.max(0, Math.min(this.y, bounds.y)));
+  }
+
+  public distance(other: Vector): number {
+    return other.sub(this).length();
+  }
+
+  public length(): number {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 }
 
