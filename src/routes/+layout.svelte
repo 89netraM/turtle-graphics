@@ -9,3 +9,18 @@
 </svelte:head>
 
 {@render children?.()}
+
+<style>
+  :global {
+    html,
+    body {
+      margin: 0;
+      width: 100dvw;
+      min-height: 100dvh;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+  }
+</style>
