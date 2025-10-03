@@ -8,7 +8,13 @@
     height,
     distance = Number.POSITIVE_INFINITY,
     drawTurtle = false,
-  }: { actions: ReadonlyArray<TurtleAction>; width: number; height: number; distance?: number; drawTurtle?: boolean } = $props();
+  }: {
+    actions: ReadonlyArray<TurtleAction>;
+    width: number;
+    height: number;
+    distance?: number;
+    drawTurtle?: boolean;
+  } = $props();
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
@@ -29,12 +35,7 @@
     const canvasRect = canvas.getBoundingClientRect();
     canvas.width = canvasRect.width;
     canvas.height = canvasRect.height;
-    turtleRender(
-      { width, height, scale: canvasRect.width / width, drawTurtle },
-      ctx,
-      actions,
-      distance,
-    );
+    turtleRender({ width, height, scale: canvasRect.width / width, drawTurtle }, ctx, actions, distance);
   }
 
   onDestroy(() => {

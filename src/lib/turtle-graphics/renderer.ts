@@ -58,7 +58,14 @@ function renderPath(
   return { traveledDistance: startingDistance - distance, color };
 }
 
-function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext2D, turtle: Turtle, distance: number, color: string) {
+function renderTurtle(
+  height: number,
+  scale: number,
+  ctx: CanvasRenderingContext2D,
+  turtle: Turtle,
+  distance: number,
+  color: string,
+) {
   ctx.save();
   ctx.translate(turtle.position.x * scale, height * scale - turtle.position.y * scale);
   ctx.rotate(turtle.angle());
@@ -73,12 +80,9 @@ function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext
   ctx.rect(-10000 * scale, -10000 * scale, 20000 * scale, 20000 * scale);
 
   // Draw the hexagon "hole"
-  ctx.moveTo(
-    Math.cos(-Math.PI / 6) * 8 * scale,
-    Math.sin(-Math.PI / 6) * 8 * scale + 2 * scale
-  );
+  ctx.moveTo(Math.cos(-Math.PI / 6) * 8 * scale, Math.sin(-Math.PI / 6) * 8 * scale + 2 * scale);
   for (let i = 1; i < 6; i++) {
-    const angle = Math.PI / 3 * i - Math.PI / 6;
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
     const x = Math.cos(angle) * 8 * scale;
     const y = Math.sin(angle) * 8 * scale + 2 * scale;
     ctx.lineTo(x, y);
@@ -141,7 +145,7 @@ function renderTurtle(height: number, scale: number, ctx: CanvasRenderingContext
   ctx.save();
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const angle = Math.PI / 3 * i - Math.PI / 6;
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
     const x = Math.cos(angle) * 8 * scale;
     const y = Math.sin(angle) * 8 * scale + 2 * scale;
     if (i === 0) {
