@@ -1,16 +1,16 @@
 export type TurtleAction =
   | {
       action: "pen-down";
-      color: string;
+      color?: string;
     }
   | {
       action: "pen-up";
     }
   | {
       action: "forward";
-      distance: number;
+      distance?: number;
     }
   | {
       action: "rotate";
-      angle: number;
+      angle?: number;
     };

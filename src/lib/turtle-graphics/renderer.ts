@@ -28,6 +28,7 @@ function renderPath(
   distance: number,
 ): { traveledDistance: number; color: string } {
   const startingDistance = distance;
+  let penIsDown = false;
   let color = "#00000000";
   ctx.strokeStyle = color;
   ctx.lineWidth = 10 * scale;
@@ -36,13 +37,18 @@ function renderPath(
   ctx.moveTo(turtle.position.x * scale, height * scale - turtle.position.y * scale);
   for (const action of actions) {
     if (action.action === "pen-down") {
-      ctx.strokeStyle = color = action.color;
+      if (penIsDown) {
+        ctx.stroke();
+      }
+      ctx.strokeStyle = color = action.color ?? "#000000";
       ctx.beginPath();
+      penIsDown = true;
     } else if (action.action === "pen-up") {
       ctx.stroke();
       ctx.strokeStyle = color = "#00000000";
+      penIsDown = false;
     } else if (action.action === "forward") {
-      const [{ position: start }, ...rest] = [...turtle.move(Math.min(action.distance, distance))];
+      const [{ position: start }, ...rest] = [...turtle.move(Math.min(action.distance ?? 0, distance))];
       ctx.moveTo(start.x * scale, height * scale - start.y * scale);
       for (const { distance: traveledDistance, position } of rest) {
         ctx.lineTo(position.x * scale, height * scale - position.y * scale);
@@ -52,7 +58,7 @@ function renderPath(
         return { traveledDistance: startingDistance, color };
       }
     } else if (action.action === "rotate") {
-      turtle.rotate(action.angle);
+      turtle.rotate(action.angle ?? 0);
     }
   }
   return { traveledDistance: startingDistance - distance, color };
