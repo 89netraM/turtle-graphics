@@ -48,9 +48,15 @@ function renderPath(
       ctx.strokeStyle = color = "#00000000";
       penIsDown = false;
     } else if (action.action === "forward") {
+      if (action.distance != null && action.distance < 0) {
+        turtle.rotate(Math.PI);
+      }
       const [{ position: start }, ...rest] = [
-        ...turtle.move(Math.min(action.distance ?? 0, distance - traveledDistance)),
+        ...turtle.move(Math.min(Math.abs(action.distance ?? 0), distance - traveledDistance)),
       ];
+      if (action.distance != null && action.distance < 0) {
+        turtle.rotate(Math.PI);
+      }
       ctx.moveTo(start.x * scale, height * scale - start.y * scale);
       for (const { distance: td, position } of rest) {
         ctx.lineTo(position.x * scale, height * scale - position.y * scale);
