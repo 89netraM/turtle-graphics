@@ -12,10 +12,9 @@
   onMount(async () => {
     monaco = (await import("$lib/monaco")).default;
 
-    editor = monaco.editor.create(editorElement, { minimap: { enabled: false }, scrollBeyondLastLine: false });
     const model = monaco.editor.createModel(text, "javascript");
+    editor = monaco.editor.create(editorElement, { minimap: { enabled: false }, scrollBeyondLastLine: false, model });
     model.onDidChangeContent(onEditorContentChanged);
-    editor.setModel(model);
 
     editorSizeObserver = new ResizeObserver(onEditorResize);
     editorSizeObserver.observe(editorElement);
