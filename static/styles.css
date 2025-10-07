@@ -32,3 +32,16 @@ a {
     color: var(--link-active);
   }
 }
+
+button {
+  border: 2px solid var(--edge);
+  background-color: var(--ui-background);
+  color: var(--color);
+  font-family: "Barlow", sans-serif;
+  padding: 0.25em 0.5em;
+
+  &:hover {
+    background-color: #424242;
+    cursor: pointer;
+  }
+}
