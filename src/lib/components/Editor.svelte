@@ -13,7 +13,12 @@
     monaco = (await import("$lib/monaco")).default;
 
     const model = monaco.editor.createModel(text, "javascript");
-    editor = monaco.editor.create(editorElement, { minimap: { enabled: false }, scrollBeyondLastLine: false, model });
+    editor = monaco.editor.create(editorElement, {
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      model,
+      theme: "Halloween",
+    });
     model.onDidChangeContent(onEditorContentChanged);
 
     editorSizeObserver = new ResizeObserver(onEditorResize);

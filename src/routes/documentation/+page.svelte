@@ -7,18 +7,8 @@
     DocumentationTextPlain,
     getJsWorkerTypings,
   } from "$lib/jsWorker";
-  import { onMount } from "svelte";
 
   const functions = getJsWorkerTypings();
-
-  onMount(async () => {
-    const monaco = (await import("$lib/monaco")).default;
-    // Invoke colorize to load CSS styles
-    monaco.editor.colorize("", "", {}).then(
-      () => {},
-      () => {},
-    );
-  });
 </script>
 
 <h1>Documentation</h1>
@@ -62,3 +52,14 @@
     {/if}
   {/each}
 {/snippet}
+
+<style>
+  .vs {
+    .mtk1 {
+      color: var(--text);
+    }
+    .mtk6 {
+      color: var(--keyword);
+    }
+  }
+</style>
