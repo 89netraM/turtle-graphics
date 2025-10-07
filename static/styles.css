@@ -1,0 +1,34 @@
+:root {
+  --editor-background: #212121;
+  --ui-background: #1f1f1f;
+  --keyword: #569cd6;
+  --text: #ffffff;
+  --link: #ffae00;
+  --link-active: #ffae00;
+  --edge: #313131;
+}
+
+html,
+body {
+  margin: 0;
+  background-color: var(--editor-background);
+  color: var(--text);
+  font-family: "Barlow", sans-serif;
+  overscroll-behavior: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Barlow Condensed", "Barlow", sans-serif;
+}
+
+a {
+  color: var(--link);
+
+  &:active {
+    color: var(--link-active);
+  }
+}

@@ -30,7 +30,7 @@ penUp();
 <style>
   div {
     display: grid;
-    height: 99.5cqh;
+    height: 100cqh;
     width: 100cqw;
     grid-template-areas: "editor preview";
     grid-template-columns: 1fr 1fr;
@@ -43,6 +43,13 @@ penUp();
     aside {
       container-type: size;
       grid-area: preview;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      :global(> canvas) {
+        border: 2px solid var(--edge);
+      }
     }
   }
 </style>
