@@ -1,6 +1,7 @@
 <script lang="ts">
   import { render as turtleRender, type TurtleAction } from "$lib/turtle-graphics";
   import { onDestroy, onMount } from "svelte";
+  import { devicePixelRatio } from "svelte/reactivity/window";
 
   let {
     actions,
@@ -33,9 +34,9 @@
 
   function render(distance: number) {
     const canvasRect = canvas.getBoundingClientRect();
-    canvas.width = canvasRect.width;
-    canvas.height = canvasRect.height;
-    turtleRender({ width, height, scale: canvasRect.width / width, drawTurtle }, ctx, actions, distance);
+    canvas.width = canvasRect.width * (devicePixelRatio.current ?? 1);
+    canvas.height = canvasRect.height * (devicePixelRatio.current ?? 1);
+    turtleRender({ width, height, scale: canvas.width / width, drawTurtle }, ctx, actions, distance);
   }
 
   onDestroy(() => {
