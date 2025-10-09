@@ -3,6 +3,7 @@
   import { page } from "$app/state";
   import favicon from "$lib/assets/favicon.svg";
   import "@fontsource/barlow/latin-400.css";
+  import "@fontsource/barlow-condensed/latin-400.css";
   import "@fontsource/barlow-condensed/latin-600.css";
 
   let { children } = $props();
