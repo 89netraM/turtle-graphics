@@ -14,6 +14,8 @@
 <article>
   <h1>Documentation</h1>
 
+  <p>The turtle starts with the pen up at the bottom center of a 640 by 360 rectangle.</p>
+
   {#each functions as func (func.name)}
     <h2>Function <code>{func.name}</code></h2>
     <pre data-lang="text/typescript" class="vs"><span class="mtk1">&nbsp;&nbsp;</span><span class="mtk1"
@@ -69,6 +71,7 @@
 
   article {
     margin-inline-start: 2rem;
+    padding-block-end: 1rem;
     width: 80ch;
 
     h2 {
