@@ -39,11 +39,12 @@
   }
 
   $effect(() => {
+    const newText = text;
     const model = editor?.getModel();
-    if (model == null) {
+    if (model == null || model.getLinesContent().join(model.getEOL()) === newText) {
       return;
     }
-    model.setValue(text);
+    model.setValue(newText);
   });
 
   onDestroy(() => {

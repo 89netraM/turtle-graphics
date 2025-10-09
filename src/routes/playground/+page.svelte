@@ -56,6 +56,7 @@
     width: 100cqw;
     grid-template-areas: "editor preview";
     grid-template-columns: 1fr 1fr;
+    overflow: hidden;
 
     main {
       container-type: size;

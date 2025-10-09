@@ -6,7 +6,7 @@
 </script>
 
 <a class="challenge-card" href={resolve(`/challenges/${id}`)}>
-  <img src={image} alt="" />
+  <img src={image} alt={name} />
   <span>{name}</span>
 </a>
 
@@ -18,6 +18,7 @@
     border-radius: 1rem;
     box-shadow: 0 0.25rem 0.5rem #000000;
     transition: box-shadow 0.25s ease-out;
+    container-type: scroll-state;
 
     &:hover {
       box-shadow: 0 0.5rem 1rem #000000;
@@ -30,9 +31,9 @@
     span {
       display: block;
       position: absolute;
-      left: 2em;
-      right: 2em;
-      bottom: 1em;
+      left: 2cqmin;
+      right: 2cqmin;
+      bottom: 1cqmin;
     }
   }
 </style>

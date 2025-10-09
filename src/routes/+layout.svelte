@@ -14,7 +14,7 @@
 
 <nav>
   <h1><a href={resolve("/")} aria-current={page.url.pathname === "/"}>Turtle Code</a></h1>
-  <p><a href={resolve("/challenges")} aria-current={page.url.pathname === "/challenges"}>Challenges</a></p>
+  <p><a href={resolve("/challenges")} aria-current={page.url.pathname.startsWith("/challenges")}>Challenges</a></p>
   <p><a href={resolve("/playground")} aria-current={page.url.pathname === "/playground"}>Playground</a></p>
   <p><a href={resolve("/documentation")} aria-current={page.url.pathname === "/documentation"}>Documentation</a></p>
 </nav>
