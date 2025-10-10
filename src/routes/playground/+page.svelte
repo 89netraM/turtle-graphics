@@ -13,12 +13,14 @@
 
   $effect(() => {
     const jsWorker = JsWorker.create($playgroundJavascript);
-    jsWorker.getActions().then((a) => (actions = a));
+    jsWorker.getActions().then((a) => {
+      actions = a;
 
-    animationDistance = Number.POSITIVE_INFINITY;
-    if (animationId != null) {
-      cancelAnimationFrame(animationId);
-    }
+      animationDistance = Number.POSITIVE_INFINITY;
+      if (animationId != null) {
+        cancelAnimationFrame(animationId);
+      }
+    });
 
     return () => jsWorker.dispose();
   });
