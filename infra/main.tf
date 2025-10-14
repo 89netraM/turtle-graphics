@@ -5,8 +5,9 @@ provider "aws" {
 provider "cloudflare" {}
 
 module "lambda" {
-  source      = "./lambda"
-  domain_name = var.domain_name
+  source         = "./lambda"
+  domain_name    = var.domain_name
+  admin_password = var.admin_password
 }
 
 module "api_gateway" {

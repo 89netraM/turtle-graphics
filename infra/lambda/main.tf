@@ -14,7 +14,8 @@ resource "aws_lambda_function" "lambda" {
   }
   environment {
     variables = {
-      ORIGIN = var.domain_name
+      ORIGIN   = var.domain_name
+      PASSWORD = var.admin_password
     }
   }
 }
