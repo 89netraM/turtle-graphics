@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v5
@@ -30,12 +30,32 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - uses: actions/cache/save@v4
+        with:
+          path: build
+          key: build-${{github.run_number}}
+
+  deploy:
+    runs-on: ubuntu-24.04-arm
+    environment: deploy
+    needs: build
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: build
+          key: build-${{github.run_number}}
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.13.3"
       - name: Initialize Terraform
         run: terraform init -lockfile=readonly
         working-directory: infra
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
       - name: Deploy Terraform
         run: terraform apply -auto-approve -input=false -no-color
         working-directory: infra
