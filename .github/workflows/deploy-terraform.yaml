@@ -1,0 +1,48 @@
+name: deploy-terraform
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm ci
+      - name: Install lambda dependencies
+        run: npm ci
+        working-directory: lambda
+      - name: Build project
+        run: npm run build
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13.3"
+      - name: Initialize Terraform
+        run: terraform init -lockfile=readonly
+        working-directory: infra
+      - name: Deploy Terraform
+        run: terraform apply -auto-approve -input=false -no-color
+        working-directory: infra
+        env:
+          TF_VAR_aws_region: ${{vars.AWS_REGION}}
+          TF_VAR_domain_name: ${{vars.DOMAIN_NAME}}
+          TF_VAR_cloudflare_dns_zone_id: ${{secrets.CLOUDFLARE_DNS_ZONE_ID}}
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          CLOUDFLARE_API_TOKEN: ${{secrets.CLOUDFLARE_API_TOKEN}}

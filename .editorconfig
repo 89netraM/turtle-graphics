@@ -8,3 +8,7 @@ max_line_length = 120
 # Config files
 [*.{json}]
 indent_size = 2
+
+# Infra files
+[*.{tf,tfvars}]
+indent_size = 2

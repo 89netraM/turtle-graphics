@@ -1,0 +1,9 @@
+{
+  "name": "lambda",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@codegenie/serverless-express": "^4.17.0",
+    "polka": "^0.5.2"
+  }
+}
