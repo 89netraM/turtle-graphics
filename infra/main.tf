@@ -4,19 +4,25 @@ provider "aws" {
 
 provider "cloudflare" {}
 
+module "s3" {
+  source = "./s3"
+}
+
 module "lambda" {
   source         = "./lambda"
   domain_name    = var.domain_name
   admin_password = var.admin_password
+  s3_bucket_name = module.s3.bucket_name
 }
 
 module "api_gateway" {
-  source                 = "./api_gateway"
-  lambda_invoke_arn      = module.lambda.lambda_invoke_arn
-  lambda_name            = module.lambda.lambda_name
-  lambda_qualifier       = module.lambda.lambda_qualifier
-  domain_name            = var.domain_name
-  cloudflare_dns_zone_id = var.cloudflare_dns_zone_id
+  source                         = "./api_gateway"
+  lambda_invoke_arn              = module.lambda.lambda_invoke_arn
+  lambda_name                    = module.lambda.lambda_name
+  lambda_qualifier               = module.lambda.lambda_qualifier
+  domain_name                    = var.domain_name
+  cloudflare_dns_zone_id         = var.cloudflare_dns_zone_id
+  s3_bucket_regional_domain_name = module.s3.bucket_regional_domain_name
 }
 
 module "domain" {

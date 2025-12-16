@@ -43,6 +43,24 @@ resource "aws_apigatewayv2_route" "proxy" {
   target    = "integrations/${aws_apigatewayv2_integration.proxy.id}"
 }
 
+resource "aws_apigatewayv2_integration" "s3" {
+  api_id                 = aws_apigatewayv2_api.proxy.id
+  integration_type       = "HTTP_PROXY"
+  integration_uri        = "http://${var.s3_bucket_regional_domain_name}/{proxy}"
+  integration_method     = "GET"
+  payload_format_version = "1.0"
+
+  request_parameters = {
+    "overwrite:path" = "$request.path"
+  }
+}
+
+resource "aws_apigatewayv2_route" "s3" {
+  api_id    = aws_apigatewayv2_api.proxy.id
+  route_key = "GET /_app/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.s3.id}"
+}
+
 resource "aws_lambda_permission" "proxy" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
