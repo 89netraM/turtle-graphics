@@ -5,4 +5,4 @@ import { handler as svelteHandler } from "./handler.js";
 
 const app = polka().use(svelteHandler);
 
-export const handler = serverlessExpress({ app });
+export default serverlessExpress({ app });
