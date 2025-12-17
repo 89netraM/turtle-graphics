@@ -28,8 +28,7 @@ developers, or CI/CD machines.
 
 Go to `infra` and run any `terraform` command you like.
 
-The first time the infrastructure stack is setup it might fail at the domain connection in AWS. This is because AWS'
-servers needs to check that the Cloudflare managed domain has the correct DNS settings before issuing a certificate for
-it. And it can take some time for AWS to realize that Cloudflare's DNS is updated. This is nothing to worry about, just
-wait a bit and apply the Terraform stack again. It should work the second time, and all subsequent time, as long as no
-DNS changes are necessary, in which case this might happen again.
+The first time the App Runner Connection is deployed you have to manually go in to the AWS Console to approve it before
+the App Runner can pull the code from the repository. Do this by navigating to [Connections | AWS App Runner](https://console.aws.amazon.com/apprunner/home#/connections)
+and taking the "Complete handshake" action for the newly created connection. This can be done while the Terraform apply
+is running, it will continually try to pull the repository until it is able to.

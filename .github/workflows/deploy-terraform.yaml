@@ -14,39 +14,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04-arm
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "22"
-      - name: Install dependencies
-        run: npm ci
-      - name: Install lambda dependencies
-        run: npm ci
-        working-directory: lambda
-      - name: Build project
-        run: npm run build
-
-      - uses: actions/cache/save@v4
-        with:
-          path: build
-          key: build-${{github.run_number}}
-
   deploy:
     runs-on: ubuntu-24.04-arm
     environment: deploy
-    needs: build
     steps:
       - uses: actions/checkout@v5
-
-      - uses: actions/cache/restore@v4
-        with:
-          path: build
-          key: build-${{github.run_number}}
-
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.13.3"

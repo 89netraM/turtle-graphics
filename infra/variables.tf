@@ -16,3 +16,9 @@ variable "admin_password" {
   type        = string
   description = "The password used for the admin page"
 }
+
+variable "app_runner_service_name" {
+  type        = string
+  description = "Name of the App Runner service"
+  default     = "sveltekit-app"
+}

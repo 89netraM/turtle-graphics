@@ -8,7 +8,16 @@ variable "dns_zone_id" {
   description = "DNS zone ID from Cloudflare"
 }
 
-variable "api_gateway_domain" {
+variable "app_runner_domain" {
   type        = string
-  description = "Internal AWS domain name for resources"
+  description = "App Runner service domain"
+}
+
+variable "app_runner_validation_records" {
+  type = map(object({
+    type    = string
+    content = string
+  }))
+  description = "DNS validation records for App Runner custom domain"
+  default     = {}
 }
