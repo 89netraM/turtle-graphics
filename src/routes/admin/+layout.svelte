@@ -11,6 +11,12 @@
       <h1>Admin Pages</h1>
       <ul>
         <li><a href={resolve("/admin")} aria-current={page.url.pathname === "/admin"}>Admin</a></li>
+        <li>
+          <a
+            href={resolve("/admin/playground-settings")}
+            aria-current={page.url.pathname === "/admin/playground-settings"}>Playground Settings</a
+          >
+        </li>
       </ul>
     </nav>
     <main>

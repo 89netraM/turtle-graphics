@@ -11,6 +11,47 @@ resource "aws_apprunner_connection" "app" {
   provider_type   = "GITHUB"
 }
 
+# IAM role for App Runner instance to access DynamoDB
+resource "aws_iam_role" "instance_role" {
+  name = "${var.service_name}-instance-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "tasks.apprunner.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "dynamodb_access" {
+  name = "${var.service_name}-dynamodb-policy"
+  role = aws_iam_role.instance_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = var.dynamodb_table_arn
+      }
+    ]
+  })
+}
+
 resource "aws_apprunner_service" "app" {
   service_name = var.service_name
 
@@ -41,8 +82,9 @@ resource "aws_apprunner_service" "app" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.app.arn
 
   instance_configuration {
-    cpu    = "1024"
-    memory = "2048"
+    cpu               = "1024"
+    memory            = "2048"
+    instance_role_arn = aws_iam_role.instance_role.arn
   }
 
   network_configuration {

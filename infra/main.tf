@@ -4,14 +4,21 @@ provider "aws" {
 
 provider "cloudflare" {}
 
+module "dynamodb" {
+  source     = "./dynamodb"
+  table_name = "${var.app_runner_service_name}-settings"
+}
+
 module "app_runner" {
-  source        = "./app_runner"
-  service_name  = var.app_runner_service_name
-  custom_domain = var.domain_name
+  source             = "./app_runner"
+  service_name       = var.app_runner_service_name
+  custom_domain      = var.domain_name
+  dynamodb_table_arn = module.dynamodb.table_arn
 
   environment_variables = {
-    ORIGIN   = "https://${var.domain_name}"
-    PASSWORD = var.admin_password
+    ORIGIN              = "https://${var.domain_name}"
+    PASSWORD            = var.admin_password
+    DYNAMODB_TABLE_NAME = module.dynamodb.table_name
   }
 }
 

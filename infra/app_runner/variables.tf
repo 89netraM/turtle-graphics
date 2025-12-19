@@ -13,3 +13,8 @@ variable "custom_domain" {
   type        = string
   description = "Custom domain name for the App Runner service"
 }
+
+variable "dynamodb_table_arn" {
+  type        = string
+  description = "ARN of the DynamoDB table for app settings"
+}

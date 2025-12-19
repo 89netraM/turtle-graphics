@@ -1,15 +1,20 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import Editor from "$lib/components/Editor.svelte";
   import TurtlePreview from "$lib/components/TurtlePreview.svelte";
+  import PlaygroundClosed from "$lib/components/PlaygroundClosed.svelte";
   import { JsWorker } from "$lib/jsWorker";
   import { playgroundJavascript } from "$lib/stores/playgroundJavascript";
   import type { TurtleAction } from "$lib/turtle-graphics";
+
+  let { data } = $props();
 
   const animationSpeed = 100;
 
   let actions: ReadonlyArray<TurtleAction> = $state([]);
   let animationDistance = $state(Number.POSITIVE_INFINITY);
   let animationId: number | null = null;
+  let isClosedClient = $state(data.isClosed);
 
   $effect(() => {
     const jsWorker = JsWorker.create($playgroundJavascript);
@@ -39,20 +44,49 @@
     previousTime = time;
     animationId = requestAnimationFrame(animate);
   }
+
+  // Client-side timer to check if close time has been reached
+  onMount(() => {
+    if (!data.isClosed && data.closeTime) {
+      const now = new Date();
+      const closeDate = new Date(data.closeTime);
+      const msUntilClose = closeDate.getTime() - now.getTime();
+
+      if (msUntilClose > 0) {
+        const timeout = setTimeout(() => {
+          isClosedClient = true;
+        }, msUntilClose);
+
+        return () => clearTimeout(timeout);
+      }
+    }
+  });
 </script>
 
-<div>
-  <main>
-    <Editor bind:text={$playgroundJavascript} />
-  </main>
-  <aside>
-    <TurtlePreview width={640} height={360} {actions} drawTurtle={true} distance={animationDistance} />
-    <button onclick={onPlayAnimationClick}>Animate Turtle</button>
-  </aside>
-</div>
+{#if isClosedClient}
+  <div class="closed-wrapper">
+    <PlaygroundClosed />
+  </div>
+{:else}
+  <div class="playground">
+    <main>
+      <Editor bind:text={$playgroundJavascript} />
+    </main>
+    <aside>
+      <TurtlePreview width={640} height={360} {actions} drawTurtle={true} distance={animationDistance} />
+      <button onclick={onPlayAnimationClick}>Animate Turtle</button>
+    </aside>
+  </div>
+{/if}
 
 <style>
-  div {
+  .closed-wrapper {
+    height: 100cqh;
+    width: 100cqw;
+    grid-column: span 2;
+  }
+
+  .playground {
     display: grid;
     height: 100cqh;
     width: 100cqw;

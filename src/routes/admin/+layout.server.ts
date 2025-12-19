@@ -3,11 +3,8 @@ import { env } from "$env/dynamic/private";
 import { redirect } from "@sveltejs/kit";
 
 export function load({ cookies, route }) {
-  console.log("Admin page load");
   const password = cookies.get("password");
-  console.log(`Cookie password: ${password}`);
   const isSignedIn = password === env.PASSWORD;
-  console.log(`isSignedIn: ${isSignedIn}`);
 
   if (route.id !== "/admin" && !isSignedIn) {
     console.log("Redirect!");
