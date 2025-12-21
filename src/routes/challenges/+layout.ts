@@ -1,7 +1,9 @@
 import exampleChallengeImage from "$lib/assets/example-challenge.png";
 import type { ChallengeInfo } from "$lib/ChallengeInfo";
 
-export function load() {
+export const prerender = false;
+
+export function load({ data }) {
   const challenges: Array<ChallengeInfo> = [];
   for (let i = 0; i < 10; i++) {
     challenges.push({
@@ -11,6 +13,7 @@ export function load() {
     });
   }
   return {
+    ...data,
     challenges,
   };
 }

@@ -14,21 +14,39 @@ if (env.DYNAMODB_TABLE_NAME) {
 }
 
 const TABLE_NAME = env.DYNAMODB_TABLE_NAME;
-const PLAYGROUND_SETTINGS_PK = "adminSetting";
-const PLAYGROUND_SETTINGS_SK = "playgroundCloseOff";
+const SETTINGS_PK = "adminSetting";
+const CHALLENGE_TIMESPAN_SK = "challengeTimespan";
 
-export interface PlaygroundSettings {
-  closeTime: string | null;
+export interface ChallengeTimespan {
+  startTime: Date;
+  endTime: Date;
 }
 
 /**
- * Get playground settings from DynamoDB or mock store
+ * Get challenge timespan from DynamoDB or mock store
  */
-export async function getPlaygroundSettings(): Promise<PlaygroundSettings> {
+export async function getChallengeTimespan(): Promise<ChallengeTimespan | null> {
   // If no table name is set, use mock store
   if (!TABLE_NAME || !docClient) {
-    const mockData = mockStore.get(`${PLAYGROUND_SETTINGS_PK}#${PLAYGROUND_SETTINGS_SK}`);
-    return (mockData as PlaygroundSettings) ?? { closeTime: null };
+    const mockData = mockStore.get(`${SETTINGS_PK}#${CHALLENGE_TIMESPAN_SK}`);
+
+    if (
+      mockData == null ||
+      typeof mockData !== "object" ||
+      !("startTime" in mockData) ||
+      typeof mockData.startTime !== "string" ||
+      !("endTime" in mockData) ||
+      typeof mockData.endTime !== "string"
+    ) {
+      return null;
+    }
+
+    return mockData == null
+      ? null
+      : {
+          startTime: new Date(mockData.startTime),
+          endTime: new Date(mockData.endTime),
+        };
   }
 
   try {
@@ -36,33 +54,42 @@ export async function getPlaygroundSettings(): Promise<PlaygroundSettings> {
       new GetCommand({
         TableName: TABLE_NAME,
         Key: {
-          PK: PLAYGROUND_SETTINGS_PK,
-          SK: PLAYGROUND_SETTINGS_SK,
+          PK: SETTINGS_PK,
+          SK: CHALLENGE_TIMESPAN_SK,
         },
       }),
     );
 
-    if (!response.Item) {
-      return { closeTime: null };
+    if (
+      response.Item == null ||
+      typeof response.Item.startTime !== "string" ||
+      typeof response.Item.endTime !== "string"
+    ) {
+      return null;
     }
 
     return {
-      closeTime: response.Item.closeTime,
+      startTime: new Date(response.Item.startTime),
+      endTime: new Date(response.Item.endTime),
     };
   } catch (error) {
-    console.error("Error fetching playground settings from DynamoDB:", error);
+    console.error("Error fetching challenge timespan from DynamoDB:", error);
     // Return default if error occurs
-    return { closeTime: null };
+    return null;
   }
 }
 
 /**
- * Set playground settings in DynamoDB or mock store
+ * Set challenge timespan in DynamoDB or mock store
+ * Both startTime and endTime must be set together or both null (atomic)
  */
-export async function setPlaygroundSettings(closeTime: string | null): Promise<void> {
+export async function setChallengeTimespan(timespan: ChallengeTimespan | null): Promise<void> {
+  const dbItem =
+    timespan == null ? null : { startTime: timespan.startTime.toISOString(), endTime: timespan.endTime.toISOString() };
+
   // If no table name is set, use mock store
   if (!TABLE_NAME || !docClient) {
-    mockStore.set(`${PLAYGROUND_SETTINGS_PK}#${PLAYGROUND_SETTINGS_SK}`, { closeTime });
+    mockStore.set(`${SETTINGS_PK}#${CHALLENGE_TIMESPAN_SK}`, dbItem);
     return;
   }
 
@@ -71,14 +98,14 @@ export async function setPlaygroundSettings(closeTime: string | null): Promise<v
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          PK: PLAYGROUND_SETTINGS_PK,
-          SK: PLAYGROUND_SETTINGS_SK,
-          closeTime: closeTime,
+          PK: SETTINGS_PK,
+          SK: CHALLENGE_TIMESPAN_SK,
+          ...dbItem,
         },
       }),
     );
   } catch (error) {
-    console.error("Error setting playground settings in DynamoDB:", error);
-    throw new Error("Failed to update playground settings");
+    console.error("Error setting challenge timespan in DynamoDB:", error);
+    throw new Error("Failed to update challenge timespan");
   }
 }

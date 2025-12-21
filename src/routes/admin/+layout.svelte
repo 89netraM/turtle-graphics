@@ -13,8 +13,8 @@
         <li><a href={resolve("/admin")} aria-current={page.url.pathname === "/admin"}>Admin</a></li>
         <li>
           <a
-            href={resolve("/admin/playground-settings")}
-            aria-current={page.url.pathname === "/admin/playground-settings"}>Playground Settings</a
+            href={resolve("/admin/challenge-settings")}
+            aria-current={page.url.pathname === "/admin/challenge-settings"}>Challenge Settings</a
           >
         </li>
       </ul>

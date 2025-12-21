@@ -14,7 +14,7 @@
   let actions: ReadonlyArray<TurtleAction> = $state([]);
   let animationDistance = $state(Number.POSITIVE_INFINITY);
   let animationId: number | null = null;
-  let isClosedClient = $state(data.isClosed);
+  let currentTime = $state(new Date());
 
   $effect(() => {
     const jsWorker = JsWorker.create($playgroundJavascript);
@@ -45,27 +45,34 @@
     animationId = requestAnimationFrame(animate);
   }
 
-  // Client-side timer to check if close time has been reached
+  // Client-side timer to check if playground should reopen (challenge ends)
   onMount(() => {
-    if (!data.isClosed && data.closeTime) {
-      const now = new Date();
-      const closeDate = new Date(data.closeTime);
-      const msUntilClose = closeDate.getTime() - now.getTime();
-
-      if (msUntilClose > 0) {
-        const timeout = setTimeout(() => {
-          isClosedClient = true;
-        }, msUntilClose);
-
-        return () => clearTimeout(timeout);
-      }
+    if (data.challengeTimespan == null) {
+      return;
+    }
+    if (currentTime < data.challengeTimespan.startTime) {
+      const msToStart = data.challengeTimespan.startTime.getTime() - currentTime.getTime();
+      let timeoutId = setTimeout(() => {
+        currentTime = new Date();
+        const msToEnd = data.challengeTimespan!.endTime.getTime() - currentTime.getTime();
+        timeoutId = setTimeout(() => {
+          currentTime = new Date();
+        }, msToEnd);
+      }, msToStart);
+      return () => clearTimeout(timeoutId);
+    } else if (currentTime < data.challengeTimespan.endTime) {
+      const msToEnd = data.challengeTimespan.endTime.getTime() - currentTime.getTime();
+      const timeoutId = setTimeout(() => {
+        currentTime = new Date();
+      }, msToEnd);
+      return () => clearTimeout(timeoutId);
     }
   });
 </script>
 
-{#if isClosedClient}
+{#if data.challengeTimespan != null && data.challengeTimespan.startTime < currentTime && currentTime < data.challengeTimespan.endTime}
   <div class="closed-wrapper">
-    <PlaygroundClosed />
+    <PlaygroundClosed challengeEndTime={data.challengeTimespan.endTime} />
   </div>
 {:else}
   <div class="playground">

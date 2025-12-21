@@ -2,7 +2,7 @@
   import type * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
   import { onDestroy, onMount } from "svelte";
 
-  let { text = $bindable("") }: { text?: string } = $props();
+  let { text = $bindable(""), readonly = false }: { text?: string; readonly?: boolean } = $props();
 
   let monaco: typeof Monaco;
   let editor: Monaco.editor.IStandaloneCodeEditor;
@@ -18,6 +18,7 @@
       scrollBeyondLastLine: false,
       model,
       theme: "Halloween",
+      readOnly: readonly,
     });
     model.onDidChangeContent(onEditorContentChanged);
 
@@ -45,6 +46,11 @@
       return;
     }
     model.setValue(newText);
+  });
+
+  $effect(() => {
+    const readOnly = readonly; // Assign to trigger effect
+    editor?.updateOptions({ readOnly });
   });
 
   onDestroy(() => {

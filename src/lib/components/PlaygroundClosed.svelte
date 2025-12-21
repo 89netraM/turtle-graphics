@@ -1,8 +1,22 @@
+<script lang="ts">
+  interface Props {
+    challengeEndTime?: Date | null;
+  }
+
+  let { challengeEndTime = null }: Props = $props();
+</script>
+
 <div class="closed-container">
   <div class="closed-content">
     <h1>Playground Closed</h1>
-    <p>The playground is currently closed and not available for use.</p>
-    <p class="info">Please check back later or contact an administrator for more information.</p>
+    <p>The playground is currently closed during the challenge period.</p>
+    {#if challengeEndTime}
+      <p class="info">
+        Playground will reopen when challenges end at:<br />
+        <strong>{challengeEndTime.toLocaleString()}</strong>
+      </p>
+    {/if}
+    <p class="info">Check out the challenges while you wait!</p>
   </div>
 </div>
 

@@ -2,10 +2,23 @@
   import ChallengeCard from "$lib/components/ChallengeCard.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import { getChallengeJavascriptStore } from "$lib/stores/challengeJavascript.js";
+  import { onMount } from "svelte";
 
   let { data } = $props();
 
   let javascript = $derived(getChallengeJavascriptStore(data.activeChallenge.id));
+  let currentTime = $state(new Date());
+
+  onMount(() => {
+    if (data.challengeTimespan == null || data.challengeTimespan.endTime < currentTime) {
+      return;
+    }
+    const msToEnd = data.challengeTimespan.endTime.getTime() - currentTime.getTime();
+    const timeoutId = setTimeout(() => {
+      currentTime = new Date();
+    }, msToEnd);
+    return () => clearTimeout(timeoutId);
+  });
 </script>
 
 <article>
@@ -15,7 +28,10 @@
     {/each}
   </nav>
   <div id="editor">
-    <Editor bind:text={$javascript} />
+    <Editor
+      bind:text={$javascript}
+      readonly={data.challengeTimespan != null && data.challengeTimespan.endTime < currentTime}
+    />
   </div>
   <img src={data.activeChallenge.image} alt={data.activeChallenge.name} />
 </article>
