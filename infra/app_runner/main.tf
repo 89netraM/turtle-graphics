@@ -52,6 +52,30 @@ resource "aws_iam_role_policy" "dynamodb_access" {
   })
 }
 
+resource "aws_iam_role_policy" "s3_access" {
+  name = "${var.service_name}-s3-policy"
+  role = aws_iam_role.instance_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          var.s3_bucket_arn,
+          "${var.s3_bucket_arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_apprunner_service" "app" {
   service_name = var.service_name
 

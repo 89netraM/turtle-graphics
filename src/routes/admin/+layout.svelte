@@ -17,6 +17,11 @@
             aria-current={page.url.pathname === "/admin/challenge-settings"}>Challenge Settings</a
           >
         </li>
+        <li>
+          <a href={resolve("/admin/challenges")} aria-current={page.url.pathname === "/admin/challenges"}
+            >Manage Challenges</a
+          >
+        </li>
       </ul>
     </nav>
     <main>

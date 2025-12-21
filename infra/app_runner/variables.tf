@@ -18,3 +18,8 @@ variable "dynamodb_table_arn" {
   type        = string
   description = "ARN of the DynamoDB table for app settings"
 }
+
+variable "s3_bucket_arn" {
+  type        = string
+  description = "ARN of the S3 bucket for challenge images"
+}

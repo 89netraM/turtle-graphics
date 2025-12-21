@@ -33,7 +33,7 @@
       readonly={data.challengeTimespan != null && data.challengeTimespan.endTime < currentTime}
     />
   </div>
-  <img src={data.activeChallenge.image} alt={data.activeChallenge.name} />
+  <img src={data.activeChallenge.imageUrl} alt={data.activeChallenge.title} />
 </article>
 
 <style>

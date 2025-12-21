@@ -1,5 +1,5 @@
 export interface ChallengeInfo {
   id: string;
-  name: string;
-  image: string;
+  title: string;
+  imageUrl: string;
 }

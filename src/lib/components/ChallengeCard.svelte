@@ -6,7 +6,7 @@
     state?: "CLOSED" | "NOT_YET_OPEN" | "OPEN" | "READ_ONLY";
   }
 
-  let { id, name, image, state }: Props = $props();
+  let { id, title, imageUrl, state }: Props = $props();
 </script>
 
 <a class="challenge-card" href={resolve(`/challenges/${id}`)}>
@@ -15,8 +15,8 @@
   {:else if state === "READ_ONLY"}
     <span class="badge badge-readonly">Read-Only</span>
   {/if}
-  <img src={image} alt={name} />
-  <span class="name">{name}</span>
+  <img src={imageUrl} alt={title} />
+  <span class="name">{title}</span>
 </a>
 
 <style>

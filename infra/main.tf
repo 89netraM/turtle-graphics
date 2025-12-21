@@ -9,16 +9,23 @@ module "dynamodb" {
   table_name = "${var.app_runner_service_name}-settings"
 }
 
+module "s3" {
+  source      = "./s3"
+  bucket_name = "${var.app_runner_service_name}-challenge-images"
+}
+
 module "app_runner" {
   source             = "./app_runner"
   service_name       = var.app_runner_service_name
   custom_domain      = var.domain_name
   dynamodb_table_arn = module.dynamodb.table_arn
+  s3_bucket_arn      = module.s3.bucket_arn
 
   environment_variables = {
     ORIGIN              = "https://${var.domain_name}"
     PASSWORD            = var.admin_password
     DYNAMODB_TABLE_NAME = module.dynamodb.table_name
+    S3_BUCKET_NAME      = module.s3.bucket_name
   }
 }
 

@@ -1,8 +1,10 @@
-import { getChallengeTimespan } from "$lib/server/dynamodb";
+import { getChallengeTimespan, getChallenges } from "$lib/server/dynamodb";
 
 export const load = async () => {
-  const challengeTimespan = await getChallengeTimespan();
+  const [challengeTimespan, challenges] = await Promise.all([getChallengeTimespan(), getChallenges()]);
+
   return {
     challengeTimespan,
+    challenges,
   };
 };
