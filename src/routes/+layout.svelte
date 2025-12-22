@@ -2,11 +2,33 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import favicon from "$lib/assets/favicon.svg";
+  import ProfileMenu from "$lib/components/ProfileMenu.svelte";
+  import AuthModal from "$lib/components/AuthModal.svelte";
+  import PinDisplayModal from "$lib/components/PinDisplayModal.svelte";
   import "@fontsource/barlow/latin-400.css";
   import "@fontsource/barlow-condensed/latin-400.css";
   import "@fontsource/barlow-condensed/latin-600.css";
 
-  let { children } = $props();
+  let { children, data } = $props();
+
+  let showAuthModal = $state(false);
+  let showPinModal = $state(false);
+  let newPin = $state("");
+  let newGroupName = $state("");
+
+  function handleSignIn() {
+    showAuthModal = true;
+  }
+
+  function handleAuthSuccess(pin?: string, groupName?: string) {
+    if (pin && groupName) {
+      newPin = pin;
+      newGroupName = groupName;
+      showPinModal = true;
+    } else {
+      window.location.reload();
+    }
+  }
 </script>
 
 <svelte:head>
@@ -18,11 +40,24 @@
   <p><a href={resolve("/challenges")} aria-current={page.url.pathname.startsWith("/challenges")}>Challenges</a></p>
   <p><a href={resolve("/playground")} aria-current={page.url.pathname === "/playground"}>Playground</a></p>
   <p><a href={resolve("/documentation")} aria-current={page.url.pathname === "/documentation"}>Documentation</a></p>
+  <ProfileMenu username={data.user?.username ?? null} pin={data.user?.pin ?? null} onSignIn={handleSignIn} />
 </nav>
 
 <main>
   {@render children?.()}
 </main>
+
+<AuthModal isOpen={showAuthModal} onClose={() => (showAuthModal = false)} onSuccess={handleAuthSuccess} />
+
+<PinDisplayModal
+  isOpen={showPinModal}
+  pin={newPin}
+  groupName={newGroupName}
+  onClose={() => {
+    showPinModal = false;
+    window.location.reload();
+  }}
+/>
 
 <style>
   :global(#body) {

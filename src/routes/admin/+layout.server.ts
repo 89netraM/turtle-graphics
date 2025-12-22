@@ -7,7 +7,6 @@ export function load({ cookies, route }) {
   const isSignedIn = password === env.PASSWORD;
 
   if (route.id !== "/admin" && !isSignedIn) {
-    console.log("Redirect!");
     redirect(307, resolve("/admin"));
   }
 
