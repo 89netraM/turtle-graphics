@@ -147,7 +147,8 @@
 <style>
   main {
     padding: 2rem;
-    max-width: 1200px;
+    overflow-y: auto;
+    height: 100cqh;
   }
 
   h1 {
@@ -160,26 +161,21 @@
 
   .warning {
     padding: 1rem;
-    background-color: #fff3cd;
-    border: 1px solid #ffc107;
+    border: 1px solid var(--error-edge);
     border-radius: 4px;
     margin-bottom: 1.5rem;
-    color: #856404;
   }
 
   .error {
-    color: var(--error-text, #d32f2f);
+    color: var(--error-text);
     margin-bottom: 1rem;
     padding: 0.75rem;
-    background-color: #ffebee;
     border-radius: 4px;
   }
 
   .success {
-    color: #2e7d32;
     margin-bottom: 1rem;
     padding: 0.75rem;
-    background-color: #e8f5e9;
     border-radius: 4px;
   }
 
@@ -187,8 +183,8 @@
     margin-bottom: 1rem;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
-    background-color: #1976d2;
-    color: white;
+    background-color: var(--link);
+    color: var(--text);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -206,9 +202,8 @@
 
   .challenge-form {
     padding: 1.5rem;
-    border: 1px solid var(--border-color, #ddd);
+    border: 1px solid var(--edge);
     border-radius: 8px;
-    background-color: #f9f9f9;
   }
 
   .challenges-list h2 {
@@ -219,7 +214,7 @@
   .empty-state {
     padding: 2rem;
     text-align: center;
-    color: var(--text-secondary, #666);
+    color: var(--text-dim);
     font-style: italic;
   }
 
@@ -230,16 +225,15 @@
   }
 
   .challenge-card {
-    border: 1px solid var(--border-color, #ddd);
+    border: 1px solid var(--edge);
     border-radius: 8px;
     overflow: hidden;
-    background-color: white;
   }
 
   .challenge-image {
     width: 100%;
-    aspect-ratio: 1;
-    background-color: #f5f5f5;
+    aspect-ratio: 640 / 360;
+    border-bottom: 1px solid var(--edge);
     overflow: hidden;
 
     img {
@@ -260,7 +254,7 @@
     .meta {
       margin: 0;
       font-size: 0.875rem;
-      color: var(--text-secondary, #666);
+      color: var(--text-dim);
       line-height: 1.6;
     }
   }
@@ -273,8 +267,9 @@
 
   .delete-confirm {
     padding: 1rem;
-    background-color: #ffebee;
-    border-top: 1px solid #ef5350;
+    border: 1px solid var(--error-edge);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 
     p {
       margin: 0 0 0.75rem 0;
@@ -284,8 +279,7 @@
 
   .edit-form {
     padding: 1rem;
-    background-color: #e3f2fd;
-    border-top: 1px solid #2196f3;
+    border-top: 1px solid var(--edge);
 
     h4 {
       margin: 0 0 1rem 0;
@@ -311,8 +305,12 @@
     input {
       padding: 0.5rem;
       font-size: 1rem;
-      border: 1px solid var(--border-color, #ddd);
+      border: 1px solid var(--edge);
       border-radius: 4px;
+
+      &[type="text"] {
+        background-color: var(--secondary-background);
+      }
 
       &:disabled {
         opacity: 0.6;
@@ -334,8 +332,8 @@
     border-radius: 4px;
     cursor: pointer;
     transition: opacity 0.2s;
-    background-color: #1976d2;
-    color: white;
+    background-color: var(--link);
+    color: var(--text);
     flex: 1;
 
     &:disabled {
@@ -348,14 +346,14 @@
     }
 
     &.secondary {
-      background-color: #f5f5f5;
-      color: #333;
-      border: 1px solid var(--border-color, #ddd);
+      background-color: var(--secondary-background);
+      color: var(--secondary-text);
+      border: 1px solid var(--edge);
     }
 
     &.danger {
-      background-color: #d32f2f;
-      color: white;
+      background-color: var(--error-text);
+      color: var(--text);
     }
   }
 </style>
