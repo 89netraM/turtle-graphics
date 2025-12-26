@@ -45,9 +45,3 @@
 </script>
 
 <canvas bind:this={canvas} style:aspect-ratio={`${width} / ${height}`}></canvas>
-
-<style>
-  canvas {
-    width: 100cqw;
-  }
-</style>

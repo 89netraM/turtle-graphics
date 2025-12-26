@@ -8,8 +8,13 @@
   import { getSubmissionState, markAsSubmitted, markAsModified, updateFromDB } from "$lib/stores/submissionState.js";
   import { onMount } from "svelte";
   import { invalidateAll } from "$app/navigation";
+  import TurtlePreview from "$lib/components/TurtlePreview.svelte";
+  import type { TurtleAction } from "$lib/turtle-graphics";
+  import { JsWorker } from "$lib/jsWorker";
 
   let { data } = $props();
+
+  const animationSpeed = 100;
 
   let javascript = $derived(getChallengeJavascriptStore(data.activeChallenge.id));
   let submissionState = $derived(getSubmissionState(data.activeChallenge.id));
@@ -27,6 +32,11 @@
   let isLoadingFromDB = $state(false);
   let lastKnownCode = $state($javascript);
 
+  // Animation state
+  let actions: ReadonlyArray<TurtleAction> = $state([]);
+  let animationDistance = $state(Number.POSITIVE_INFINITY);
+  let animationId: number | null = null;
+
   // Track code changes for modification detection
   $effect(() => {
     const currentCode = $javascript;
@@ -40,11 +50,27 @@
     }
   });
 
+  $effect(() => {
+    if (isReadonly) {
+      const jsWorker = JsWorker.create($javascript);
+      jsWorker.getActions().then((a) => {
+        actions = a;
+
+        animationDistance = Number.POSITIVE_INFINITY;
+        if (animationId != null) {
+          cancelAnimationFrame(animationId);
+        }
+      });
+
+      return () => jsWorker.dispose();
+    }
+  });
+
   // Load submission from DB on mount if available and not modified
   onMount(() => {
     let timeoutId: NodeJS.Timeout | null = null;
     // Set up readonly timeout
-    if (data.challengeTimespan != null && data.challengeTimespan.endTime < currentTime) {
+    if (data.challengeTimespan != null && currentTime < data.challengeTimespan.endTime) {
       const msToEnd = data.challengeTimespan.endTime.getTime() - currentTime.getTime();
       timeoutId = setTimeout(() => {
         currentTime = new Date();
@@ -149,6 +175,21 @@
       window.location.reload();
     }
   }
+
+  function onPlayAnimationClick() {
+    animationDistance = 0;
+    animationId = requestAnimationFrame(animate);
+  }
+
+  let previousTime: DOMHighResTimeStamp | null = null;
+  function animate(time: DOMHighResTimeStamp) {
+    if (previousTime != null) {
+      const deltaTime = time - previousTime;
+      animationDistance += (animationSpeed * deltaTime) / 1000;
+    }
+    previousTime = time;
+    animationId = requestAnimationFrame(animate);
+  }
 </script>
 
 <article>
@@ -160,7 +201,17 @@
   <div id="editor">
     <Editor bind:text={$javascript} readonly={isReadonly} />
   </div>
-  <img src={data.activeChallenge.imageUrl} alt={data.activeChallenge.title} />
+  <div id="preview" class:readonly={isReadonly}>
+    <div class="container">
+      <img src={data.activeChallenge.imageUrl} alt={data.activeChallenge.title} />
+    </div>
+    {#if isReadonly}
+      <div class="container">
+        <TurtlePreview width={640} height={360} {actions} drawTurtle={true} distance={animationDistance} />
+      </div>
+      <button onclick={onPlayAnimationClick}>Animate Turtle</button>
+    {/if}
+  </div>
   <div id="status-bar">
     <SubmissionStatusBar
       status={$submissionState.status}
@@ -215,15 +266,45 @@
       container-type: size;
     }
 
-    img {
+    #preview {
       grid-area: template;
-      align-self: center;
-      justify-self: stretch;
-      min-width: 0;
-      min-height: 0;
-      object-fit: contain;
-      object-position: center center;
-      border: 2px solid var(--edge);
+      padding-block: 0.5rem;
+      display: grid;
+      grid-template-rows: 1fr 1fr auto;
+      justify-content: stretch;
+      align-items: stretch;
+      gap: 0.5rem;
+
+      .container {
+        container-type: size;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &:first-of-type {
+          margin-block-end: 0.25rem;
+          grid-row: span 3;
+        }
+        &:last-of-type {
+          margin-block-start: 0.25rem;
+        }
+
+        img,
+        :global(> canvas) {
+          max-width: 100cqw;
+          max-height: 100cqh;
+          aspect-ratio: 640 / 360;
+          border: 2px solid var(--edge);
+        }
+      }
+
+      button {
+        justify-self: center;
+      }
+    }
+
+    #preview.readonly .container:first-of-type {
+      grid-row: unset;
     }
 
     #status-bar {

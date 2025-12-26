@@ -115,6 +115,7 @@
       align-items: center;
 
       :global(> canvas) {
+        width: 100cqw;
         border: 2px solid var(--edge);
       }
 
