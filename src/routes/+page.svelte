@@ -106,8 +106,9 @@
         container-type: size;
         aspect-ratio: 16 / 9;
 
-        :global(> *) {
+        :global(> canvas) {
           border: 2px solid var(--edge);
+          width: 100cqw;
         }
       }
     }

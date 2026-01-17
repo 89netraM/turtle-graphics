@@ -22,6 +22,9 @@
             >Manage Challenges</a
           >
         </li>
+        <li>
+          <a href={resolve("/admin/presentation/")}>Presentation</a>
+        </li>
       </ul>
     </nav>
     <main>
