@@ -174,6 +174,7 @@ export async function getChallenges(): Promise<Challenge[]> {
         }
       }
     }
+    challenges.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
     return challenges;
   }
 
