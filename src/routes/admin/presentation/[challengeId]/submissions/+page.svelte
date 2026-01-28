@@ -79,6 +79,10 @@
       event.preventDefault();
       // Go back to current challenge display
       goto(resolve("/admin/presentation/[challengeId]", { challengeId: page.params.challengeId! }));
+    } else if (event.key === "r") {
+      event.preventDefault();
+      // Reset animation
+      animationDistance = 0;
     }
   }
 </script>
