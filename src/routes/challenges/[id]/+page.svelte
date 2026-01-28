@@ -199,7 +199,7 @@
     {/each}
   </nav>
   <div id="editor">
-    <Editor bind:text={$javascript} readonly={isReadonly} />
+    <Editor bind:text={$javascript} readonly={isReadonly} onSave={handleSubmit} />
   </div>
   <div id="preview" class:readonly={isReadonly}>
     <div class="container">

@@ -2,7 +2,11 @@
   import type * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
   import { onDestroy, onMount } from "svelte";
 
-  let { text = $bindable(""), readonly = false }: { text?: string; readonly?: boolean } = $props();
+  let {
+    text = $bindable(""),
+    onSave = null,
+    readonly = false,
+  }: { text?: string; onSave?: (() => unknown) | null; readonly?: boolean } = $props();
 
   let monaco: typeof Monaco;
   let editor: Monaco.editor.IStandaloneCodeEditor;
@@ -21,6 +25,14 @@
       readOnly: readonly,
     });
     model.onDidChangeContent(onEditorContentChanged);
+    editor.addAction({
+      id: "save",
+      label: "Save",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      run: () => {
+        onSave?.();
+      },
+    });
 
     editorSizeObserver = new ResizeObserver(onEditorResize);
     editorSizeObserver.observe(editorElement);
