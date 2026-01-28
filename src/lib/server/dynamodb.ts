@@ -193,13 +193,15 @@ export async function getChallenges(): Promise<Challenge[]> {
       return [];
     }
 
-    return response.Items.map((item) => ({
+    const challenges = response.Items.map((item) => ({
       id: item.id,
       title: item.title,
       imageUrl: item.imageUrl,
       createdAt: new Date(item.createdAt),
       updatedAt: new Date(item.updatedAt),
     }));
+    challenges.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    return challenges;
   } catch (error) {
     console.error("Error fetching challenges from DynamoDB:", error);
     return [];
