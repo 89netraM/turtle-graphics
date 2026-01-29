@@ -17,6 +17,6 @@ declare function forward(distance: number): void;
 
 /**
  * Rotates the turtle `angle` radians without moving.
- * @param angle The rotation angle, clockwise in radians.
+ * @param angle The rotation angle, counterclockwise in radians.
  */
 declare function rotate(angle: number): void;
